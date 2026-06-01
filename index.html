@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tomás Feiertag — Data Scientist · NLP & LLMs</title>
   <meta name="description" content="Data Scientist specializing in NLP and LLMs in production at Movistar (Telefónica). Python · PySpark · Databricks · Hugging Face." />
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://tomasfeiertag.github.io/" />
+  <meta property="og:title"       content="Tomás Feiertag — Data Scientist · NLP & LLMs" />
+  <meta property="og:description" content="Data Scientist specializing in NLP and LLMs in production at Movistar (Telefónica). Building AI systems that process +300K messages/week." />
+  <meta property="og:image"       content="https://github.com/TomasFeiertag.png" />
+  <!-- Twitter / X card -->
+  <meta name="twitter:card"        content="summary" />
+  <meta name="twitter:title"       content="Tomás Feiertag — Data Scientist · NLP & LLMs" />
+  <meta name="twitter:description" content="Data Scientist specializing in NLP and LLMs in production at Movistar (Telefónica). Building AI systems that process +300K messages/week." />
+  <meta name="twitter:image"       content="https://github.com/TomasFeiertag.png" />
   <link rel="icon" type="image/png" href="https://github.com/TomasFeiertag.png?size=64" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -512,6 +523,7 @@
   <div class="nav-links">
     <a href="#about">About</a>
     <a href="#experience">Experience</a>
+    <a href="#education">Education</a>
     <a href="#projects">Projects</a>
     <a href="#certifications">Certs</a>
     <a href="#contact">Contact</a>
@@ -702,6 +714,32 @@
         </div>
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- ── Education ── -->
+<section id="education">
+  <div class="container fade-up">
+    <p class="section-label">Education</p>
+    <h2>Academic background</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="tl-date">2024 — Present</div>
+        <div>
+          <div class="tl-company">Universidad Siglo 21</div>
+          <div class="tl-role">B.Sc. in Data Science <span style="color:var(--muted);font-size:0.8rem;">(in progress)</span></div>
+          <p class="tl-desc" style="margin-top:0.25rem;">Formal degree covering statistics, machine learning, data engineering, and AI systems design.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">Jul 2024 — Oct 2024</div>
+        <div>
+          <div class="tl-company">Henry Bootcamp</div>
+          <div class="tl-role">Data Science & Engineering — 800h</div>
+          <p class="tl-desc" style="margin-top:0.25rem;">Intensive program covering the full data stack: Python, SQL, machine learning, cloud deployments, and 3 end-to-end production projects.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -897,6 +935,7 @@ const COMMANDS = [
   { group: 'Navigate', icon: '🏠', label: 'Home',           action: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
   { group: 'Navigate', icon: '👤', label: 'About',          action: () => document.getElementById('about').scrollIntoView({ behavior: 'smooth' }) },
   { group: 'Navigate', icon: '💼', label: 'Experience',     action: () => document.getElementById('experience').scrollIntoView({ behavior: 'smooth' }) },
+  { group: 'Navigate', icon: '🎓', label: 'Education',      action: () => document.getElementById('education').scrollIntoView({ behavior: 'smooth' }) },
   { group: 'Navigate', icon: '🚀', label: 'Projects',       action: () => document.getElementById('projects').scrollIntoView({ behavior: 'smooth' }) },
   { group: 'Navigate', icon: '📜', label: 'Certifications', action: () => document.getElementById('certifications').scrollIntoView({ behavior: 'smooth' }) },
   { group: 'Navigate', icon: '📬', label: 'Contact',        action: () => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }) },
@@ -1162,7 +1201,7 @@ document.querySelectorAll('.fade-up, .stagger').forEach(el => fadeObs.observe(el
 /* ═══════════════════════════════════════════════
    7. Active nav section tracking
 ═══════════════════════════════════════════════ */
-const sections = ['about','experience','projects','certifications','contact'];
+const sections = ['about','experience','education','projects','certifications','contact'];
 const navLinks = {};
 sections.forEach(id => {
   const a = document.querySelector(`.nav-links a[href="#${id}"]`);
