@@ -10,18 +10,23 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    /* ── Reset & base ── */
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:        #0d1117;
-      --surface:   #161b22;
-      --border:    #21262d;
-      --accent:    #58a6ff;
-      --accent2:   #3fb950;
-      --text:      #e6edf3;
-      --muted:     #8b949e;
-      --tag-bg:    #1f2937;
-      --radius:    10px;
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --border:   #21262d;
+      --accent:   #58a6ff;
+      --accent2:  #3fb950;
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --tag-bg:   #1f2937;
+      --radius:   10px;
     }
     html { scroll-behavior: smooth; }
     body {
@@ -29,153 +34,267 @@
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
+      overflow-x: hidden;
     }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
+    /* ── Cursor glow ── */
+    #cursor-glow {
+      position: fixed;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(88,166,255,0.045) 0%, transparent 65%);
+      top: 0; left: 0;
+      z-index: 1;
+      will-change: transform;
+    }
+
     /* ── Nav ── */
     nav {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(13,17,23,0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(13,17,23,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
       padding: 0 2rem;
       display: flex; align-items: center; justify-content: space-between;
       height: 60px;
     }
-    .nav-logo { font-weight: 700; font-size: 1.05rem; color: var(--accent); font-family: 'JetBrains Mono', monospace; letter-spacing: -0.01em; }
-    .nav-links { display: flex; gap: 1.75rem; }
-    .nav-links a { color: var(--muted); font-size: 0.875rem; font-weight: 500; }
+    .nav-logo {
+      font-weight: 700; font-size: 1.05rem;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.01em;
+    }
+    .nav-links { display: flex; gap: 1.75rem; align-items: center; }
+    .nav-links a {
+      color: var(--muted); font-size: 0.875rem; font-weight: 500;
+      position: relative; padding-bottom: 3px;
+      transition: color 0.2s;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 2px; background: var(--accent); border-radius: 2px;
+      transform: scaleX(0); transition: transform 0.25s ease;
+      transform-origin: left;
+    }
+    .nav-links a.active { color: var(--text); }
+    .nav-links a.active::after { transform: scaleX(1); }
     .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-cmd-hint {
+      display: flex; align-items: center; gap: 0.35rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.22rem 0.6rem;
+      font-size: 0.72rem; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+      user-select: none;
+    }
+    .nav-cmd-hint:hover { border-color: rgba(88,166,255,0.5); color: var(--accent); }
 
     /* ── Layout ── */
-    .container { max-width: 860px; margin: 0 auto; padding: 0 1.5rem; }
+    .container { max-width: 880px; margin: 0 auto; padding: 0 1.5rem; }
     section { padding: 5rem 0; }
     section + section { border-top: 1px solid var(--border); }
 
     /* ── Hero ── */
     #hero {
-      min-height: 92vh;
+      min-height: 93vh;
       display: flex; align-items: center;
-      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(88,166,255,0.08), transparent);
+      position: relative;
       border-bottom: 1px solid var(--border);
+      overflow: hidden;
     }
+    #hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(88,166,255,0.13) 1px, transparent 1px);
+      background-size: 30px 30px;
+      mask-image: radial-gradient(ellipse 75% 55% at 50% 0%, black 20%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse 75% 55% at 50% 0%, black 20%, transparent 75%);
+      z-index: 0; pointer-events: none;
+    }
+    #hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 55% at 50% -5%, rgba(88,166,255,0.07), transparent 65%);
+      z-index: 0; pointer-events: none;
+    }
+    #hero .container { position: relative; z-index: 2; }
+
     .hero-inner {
       padding: 4rem 0 3rem;
       display: flex; align-items: center;
       gap: 3.5rem; justify-content: space-between;
     }
     .hero-content { flex: 1; min-width: 0; }
-    .hero-photo-wrap {
-      flex-shrink: 0;
-      position: relative;
+    .hero-photo-wrap { flex-shrink: 0; position: relative; }
+
+    @keyframes spin-ring {
+      from { --angle: 0deg; }
+      to   { --angle: 360deg; }
     }
     .hero-photo-wrap::before {
       content: '';
-      position: absolute; inset: -4px;
+      position: absolute; inset: -3px;
       border-radius: 50%;
-      background: linear-gradient(135deg, rgba(88,166,255,0.5), rgba(63,185,80,0.3), transparent 60%);
+      background: conic-gradient(from var(--angle),
+        transparent 50%,
+        rgba(88,166,255,0.65) 72%,
+        rgba(63,185,80,0.35) 85%,
+        transparent 100%);
       z-index: 0;
+      animation: spin-ring 7s linear infinite;
     }
     .hero-photo {
       width: 210px; height: 210px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--border);
-      display: block;
-      position: relative; z-index: 1;
-      filter: grayscale(10%);
-      transition: filter 0.3s;
+      border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--bg);
+      display: block; position: relative; z-index: 1;
+      filter: grayscale(15%);
+      transition: filter 0.4s ease;
     }
     .hero-photo:hover { filter: grayscale(0%); }
-    @media (max-width: 680px) {
-      .hero-inner { flex-direction: column-reverse; gap: 2rem; text-align: center; }
-      .hero-photo { width: 150px; height: 150px; }
-      .hero-badge { margin: 0 auto 1.5rem; }
-      .hero-stats { justify-content: center; }
-      .hero-cta { justify-content: center; }
-    }
+
     .hero-badge {
       display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(63,185,80,0.12); border: 1px solid rgba(63,185,80,0.3);
+      background: rgba(63,185,80,0.1); border: 1px solid rgba(63,185,80,0.25);
       color: var(--accent2); border-radius: 999px;
       padding: 0.3rem 0.9rem; font-size: 0.78rem; font-weight: 500;
       margin-bottom: 1.5rem;
     }
-    .hero-badge span { width: 7px; height: 7px; background: var(--accent2); border-radius: 50%; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+    .hero-badge .dot {
+      width: 7px; height: 7px;
+      background: var(--accent2); border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.4;transform:scale(0.8);} }
+
     h1 {
       font-size: clamp(2.2rem, 5vw, 3.4rem);
-      font-weight: 700; line-height: 1.15;
-      letter-spacing: -0.02em;
+      font-weight: 700; line-height: 1.14;
+      letter-spacing: -0.025em;
       margin-bottom: 1rem;
     }
     h1 .accent { color: var(--accent); }
+
     .hero-sub {
-      font-size: 1.15rem; color: var(--muted);
-      max-width: 560px; margin-bottom: 2rem;
+      font-size: 1.05rem; color: var(--muted);
+      max-width: 520px; margin-bottom: 2rem; line-height: 1.8;
+      min-height: 3.5rem;
     }
     .hero-sub strong { color: var(--text); }
+    .tw-cursor {
+      display: inline-block; width: 2px; height: 1em;
+      background: var(--accent); vertical-align: text-bottom;
+      margin-left: 1px; animation: blink-cur 1s infinite;
+    }
+    @keyframes blink-cur { 0%,50%{opacity:1;} 51%,100%{opacity:0;} }
+
     .hero-stats {
       display: grid; grid-template-columns: repeat(4, auto);
-      gap: 1.5rem 2rem; flex-wrap: wrap;
+      gap: 1.5rem 2.25rem;
       margin-bottom: 2.5rem; width: fit-content;
     }
     .stat-item { display: flex; flex-direction: column; }
-    .stat-num { font-size: 1.6rem; font-weight: 700; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
-    .stat-label { font-size: 0.78rem; color: var(--muted); }
-    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .stat-num {
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--accent); font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.02em;
+    }
+    .stat-label { font-size: 0.77rem; color: var(--muted); }
+
+    .hero-cta { display: flex; gap: 0.85rem; flex-wrap: wrap; }
     .btn {
       display: inline-flex; align-items: center; gap: 0.45rem;
       padding: 0.65rem 1.4rem; border-radius: var(--radius);
       font-size: 0.875rem; font-weight: 500; cursor: pointer;
       transition: opacity 0.15s, transform 0.15s;
     }
-    .btn:hover { opacity: 0.85; transform: translateY(-1px); text-decoration: none; }
+    .btn:hover { opacity: 0.82; transform: translateY(-1px); text-decoration: none; }
     .btn-primary { background: var(--accent); color: #0d1117; }
     .btn-secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
 
     /* ── Section headings ── */
     .section-label {
-      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
       text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem;
     }
-    h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 2rem; }
+    h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 2rem; letter-spacing: -0.018em; }
 
     /* ── About ── */
-    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    .about-text { font-size: 0.95rem; color: var(--muted); line-height: 1.8; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+    .about-text { font-size: 0.94rem; color: var(--muted); line-height: 1.85; }
     .about-text p + p { margin-top: 1rem; }
     .about-text strong { color: var(--text); }
-    .stack-grid { display: flex; flex-direction: column; gap: 0.75rem; }
-    .stack-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .stack-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.2rem; font-weight: 500; }
+    .about-skills { margin-top: 1.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .stack-row { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .stack-label { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.25rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
     .tag {
       background: var(--tag-bg); border: 1px solid var(--border);
       color: var(--text); border-radius: 6px;
-      padding: 0.25rem 0.65rem; font-size: 0.78rem;
+      padding: 0.25rem 0.65rem; font-size: 0.77rem;
       font-family: 'JetBrains Mono', monospace;
+      transition: border-color 0.2s, color 0.2s;
     }
-    .tag.highlight { border-color: rgba(88,166,255,0.4); color: var(--accent); }
+    .tag:hover { border-color: rgba(88,166,255,0.35); }
+    .tag.hi { border-color: rgba(88,166,255,0.35); color: var(--accent); }
+
+    /* ── Terminal widget ── */
+    .terminal {
+      background: #070b10;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.77rem; overflow: hidden;
+    }
+    .term-bar {
+      background: var(--surface);
+      padding: 0.5rem 0.85rem;
+      display: flex; align-items: center; gap: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .tdot { width: 11px; height: 11px; border-radius: 50%; }
+    .tdot.r { background: #ff5f57; }
+    .tdot.y { background: #febc2e; }
+    .tdot.g { background: #28c840; }
+    .term-title { font-size: 0.68rem; color: var(--muted); margin: 0 auto; }
+    .term-body { padding: 1rem 1.1rem; min-height: 230px; }
+    .tline { margin-bottom: 0.3rem; line-height: 1.55; white-space: pre-wrap; word-break: break-all; }
+    .tline .p  { color: var(--accent2); }
+    .tline .c  { color: var(--text); }
+    .tline .o  { color: var(--muted); }
+    .tline .v  { color: var(--accent); }
+    .tline .s  { color: #ff7b72; }
+    .term-cursor-blink {
+      display: inline-block; width: 8px; height: 13px;
+      background: var(--accent2); vertical-align: middle;
+      animation: blink-cur 1s infinite;
+    }
 
     /* ── Experience ── */
-    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .timeline { display: flex; flex-direction: column; }
     .timeline-item {
       display: grid; grid-template-columns: 140px 1fr;
       gap: 1.5rem; padding: 1.75rem 0;
       border-bottom: 1px solid var(--border);
+      position: relative;
     }
     .timeline-item:last-child { border-bottom: none; }
     .tl-date { font-size: 0.8rem; color: var(--muted); padding-top: 3px; line-height: 1.5; }
-    .tl-company { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+    .tl-company { font-weight: 600; font-size: 0.95rem; }
     .tl-role { font-size: 0.875rem; color: var(--accent); margin-bottom: 0.6rem; }
     .tl-desc { font-size: 0.875rem; color: var(--muted); line-height: 1.7; }
     .tl-desc li { margin-left: 1.1rem; margin-bottom: 0.3rem; }
     .tl-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
     .tl-tag {
-      background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.2);
+      background: rgba(88,166,255,0.07); border: 1px solid rgba(88,166,255,0.18);
       color: var(--accent); border-radius: 4px;
-      padding: 0.15rem 0.5rem; font-size: 0.72rem;
+      padding: 0.15rem 0.5rem; font-size: 0.71rem;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     /* ── Projects ── */
@@ -183,23 +302,52 @@
     .project-card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 1.5rem;
-      transition: border-color 0.2s, transform 0.2s;
+      transition: border-color 0.25s, transform 0.25s;
       display: flex; flex-direction: column;
+      position: relative; z-index: 0;
     }
-    .project-card:hover { border-color: rgba(88,166,255,0.4); transform: translateY(-2px); }
-    .project-card.featured { border-color: rgba(88,166,255,0.3); background: rgba(88,166,255,0.03); }
+    .project-card:not(.featured):hover {
+      border-color: rgba(88,166,255,0.4);
+      transform: translateY(-3px);
+    }
+    /* Animated gradient border on featured cards */
+    .project-card.featured {
+      border-color: transparent;
+    }
+    .project-card.featured::before {
+      content: '';
+      position: absolute; inset: -1px;
+      border-radius: calc(var(--radius) + 1px);
+      background: conic-gradient(from var(--angle),
+        transparent 45%,
+        rgba(88,166,255,0.55) 65%,
+        rgba(63,185,80,0.3) 78%,
+        transparent 95%);
+      z-index: -1;
+      animation: spin-ring 6s linear infinite;
+    }
+    .project-card.featured::after {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: var(--radius);
+      background: var(--surface);
+      z-index: -1;
+    }
+    .project-card.featured:hover { transform: translateY(-3px); }
+
     .project-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
     .project-icon { font-size: 1.4rem; }
     .project-links { display: flex; gap: 0.75rem; }
-    .project-links a { color: var(--muted); font-size: 0.8rem; }
-    .project-links a:hover { color: var(--accent); }
+    .project-links a { color: var(--muted); font-size: 0.8rem; transition: color 0.2s; }
+    .project-links a:hover { color: var(--accent); text-decoration: none; }
     .project-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; }
-    .project-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.65; flex: 1; }
+    .project-desc { font-size: 0.84rem; color: var(--muted); line-height: 1.65; flex: 1; }
     .project-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
     .project-tag {
       background: var(--tag-bg); border: 1px solid var(--border);
       color: var(--muted); border-radius: 4px;
-      padding: 0.15rem 0.5rem; font-size: 0.72rem;
+      padding: 0.15rem 0.5rem; font-size: 0.71rem;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     /* ── Certifications ── */
@@ -208,15 +356,18 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 1.1rem 1.25rem;
       display: flex; align-items: flex-start; gap: 1rem;
+      transition: border-color 0.2s, transform 0.2s;
     }
+    .cert-card:hover { border-color: rgba(88,166,255,0.3); transform: translateY(-2px); }
     .cert-icon {
       width: 36px; height: 36px; border-radius: 8px;
-      background: var(--tag-bg); display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; flex-shrink: 0;
+      background: var(--tag-bg); display: flex; align-items: center;
+      justify-content: center; font-size: 1.1rem; flex-shrink: 0;
     }
-    .cert-name { font-size: 0.875rem; font-weight: 600; color: var(--text); }
-    .cert-issuer { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
-    .cert-link { font-size: 0.75rem; color: var(--accent); margin-top: 0.35rem; display: inline-block; }
+    .cert-name { font-size: 0.875rem; font-weight: 600; }
+    .cert-issuer { font-size: 0.77rem; color: var(--muted); margin-top: 0.15rem; }
+    .cert-link { font-size: 0.74rem; color: var(--accent); margin-top: 0.35rem; display: inline-block; }
+    .cert-link:hover { text-decoration: underline; }
 
     /* ── Contact ── */
     #contact { text-align: center; }
@@ -239,28 +390,121 @@
       font-size: 0.8rem; color: var(--muted);
     }
 
-    /* ── Scroll fade-in ── */
+    /* ── Command Palette ── */
+    #cmd-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 999;
+      align-items: flex-start; justify-content: center;
+      padding-top: 14vh;
+    }
+    #cmd-overlay.open { display: flex; }
+    #cmd-palette {
+      background: #141920;
+      border: 1px solid rgba(88,166,255,0.22);
+      border-radius: 14px;
+      width: 100%; max-width: 530px; margin: 0 1rem;
+      overflow: hidden;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.7), 0 0 0 1px rgba(88,166,255,0.08);
+      animation: palette-in 0.18s ease;
+    }
+    @keyframes palette-in { from { opacity:0; transform: scale(0.97) translateY(-8px); } to { opacity:1; transform: none; } }
+    #cmd-input-wrap {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0 1.1rem; border-bottom: 1px solid var(--border);
+    }
+    #cmd-input-wrap svg { color: var(--muted); flex-shrink: 0; }
+    #cmd-input {
+      width: 100%; background: transparent;
+      border: none; outline: none;
+      padding: 1rem 0;
+      font-size: 0.95rem; color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+    #cmd-input::placeholder { color: var(--muted); }
+    #cmd-list { list-style: none; max-height: 360px; overflow-y: auto; padding: 0.4rem 0; }
+    #cmd-list::-webkit-scrollbar { width: 4px; }
+    #cmd-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .cmd-group { padding: 0.5rem 1.1rem 0.2rem; font-size: 0.67rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+    .cmd-item {
+      display: flex; align-items: center; gap: 0.85rem;
+      padding: 0.6rem 1.1rem; cursor: pointer;
+      font-size: 0.875rem; transition: background 0.1s;
+    }
+    .cmd-item:hover, .cmd-item.sel { background: rgba(88,166,255,0.1); }
+    .cmd-item .ci { font-size: 1rem; width: 22px; text-align: center; flex-shrink: 0; }
+    .cmd-item .cl { color: var(--text); flex: 1; }
+    .cmd-item .ch { font-size: 0.7rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    #cmd-empty { padding: 2.5rem; text-align: center; color: var(--muted); font-size: 0.875rem; display: none; }
+    #cmd-footer {
+      border-top: 1px solid var(--border);
+      padding: 0.5rem 1.1rem;
+      display: flex; gap: 1.25rem;
+      font-size: 0.67rem; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    #cmd-footer span { display: flex; align-items: center; gap: 0.3rem; }
+    #cmd-footer kbd {
+      background: var(--tag-bg); border: 1px solid var(--border);
+      border-radius: 3px; padding: 0.08rem 0.35rem;
+      font-family: inherit; font-size: 0.65rem; color: var(--text);
+    }
+
+    /* ── Scroll animations ── */
     .fade-up {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.55s ease, transform 0.55s ease;
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
     }
-    .fade-up.visible {
-      opacity: 1;
-      transform: translateY(0);
+    .fade-up.visible { opacity: 1; transform: none; }
+
+    .stagger > * {
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
+    .stagger.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay:0.04s; }
+    .stagger.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay:0.11s; }
+    .stagger.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay:0.18s; }
+    .stagger.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay:0.25s; }
+    .stagger.visible > *:nth-child(5) { opacity:1; transform:none; transition-delay:0.32s; }
+    .stagger.visible > *:nth-child(6) { opacity:1; transform:none; transition-delay:0.39s; }
 
     /* ── Responsive ── */
     @media (max-width: 680px) {
+      .hero-inner { flex-direction: column-reverse; gap: 2rem; text-align: center; }
+      .hero-photo { width: 150px; height: 150px; }
+      .hero-badge { margin: 0 auto 1.5rem; }
+      .hero-stats { justify-content: center; grid-template-columns: repeat(2, auto); }
+      .hero-cta { justify-content: center; }
+      .nav-cmd-hint { display: none; }
       .about-grid, .projects-grid, .certs-grid { grid-template-columns: 1fr; }
       .timeline-item { grid-template-columns: 1fr; gap: 0.25rem; }
-      .tl-date { font-size: 0.75rem; }
-      .hero-stats { gap: 1.5rem; }
       .nav-links { gap: 1rem; }
     }
   </style>
 </head>
 <body>
+
+<!-- Cursor glow -->
+<div id="cursor-glow"></div>
+
+<!-- ── Command Palette ── -->
+<div id="cmd-overlay" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div id="cmd-palette">
+    <div id="cmd-input-wrap">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="cmd-input" type="text" placeholder="Search commands, sections, links…" autocomplete="off" spellcheck="false" />
+    </div>
+    <ul id="cmd-list"></ul>
+    <div id="cmd-empty">No results for this query</div>
+    <div id="cmd-footer">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> select</span>
+      <span><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
 
 <!-- ── Navigation ── -->
 <nav>
@@ -271,6 +515,9 @@
     <a href="#projects">Projects</a>
     <a href="#certifications">Certs</a>
     <a href="#contact">Contact</a>
+    <button class="nav-cmd-hint" id="cmd-trigger" type="button" aria-label="Open command palette (Ctrl+K)">
+      <kbd style="background:none;border:none;font-family:inherit;font-size:inherit;color:inherit;padding:0;">⌘K</kbd>
+    </button>
   </div>
 </nav>
 
@@ -280,24 +527,21 @@
     <div class="hero-inner">
       <div class="hero-content">
         <div class="hero-badge">
-          <span></span> Available for NLP · AI/ML Engineering · Data Science roles
+          <span class="dot"></span> Available for NLP · AI/ML Engineering · Data Science roles
         </div>
         <h1>Tomás Feiertag<br/><span class="accent">Data Scientist</span></h1>
-        <p class="hero-sub">
-          NLP &amp; LLMs in production at <strong>Movistar · Telefónica</strong>.<br/>
-          Building AI systems that process <strong>+300K messages/week</strong> in real-world scale.
-        </p>
+        <p class="hero-sub" id="hero-sub"><span class="tw-cursor"></span></p>
         <div class="hero-stats">
           <div class="stat-item">
-            <span class="stat-num">+300K</span>
+            <span class="stat-num" id="cnt-1" data-target="300" data-suffix="K+">300K+</span>
             <span class="stat-label">msgs/week in production</span>
           </div>
           <div class="stat-item">
-            <span class="stat-num">2+</span>
+            <span class="stat-num" id="cnt-2" data-target="2" data-suffix="+">2+</span>
             <span class="stat-label">years building AI in prod</span>
           </div>
           <div class="stat-item">
-            <span class="stat-num">4</span>
+            <span class="stat-num" id="cnt-3" data-target="4">4</span>
             <span class="stat-label">end-to-end projects</span>
           </div>
           <div class="stat-item">
@@ -307,8 +551,8 @@
         </div>
         <div class="hero-cta">
           <a href="#projects" class="btn btn-primary">View Projects</a>
-          <a href="https://linkedin.com/in/tfeiertag/" target="_blank" class="btn btn-secondary">LinkedIn</a>
-          <a href="https://github.com/TomasFeiertag" target="_blank" class="btn btn-secondary">GitHub</a>
+          <a href="https://linkedin.com/in/tfeiertag/" target="_blank" rel="noopener" class="btn btn-secondary">LinkedIn</a>
+          <a href="https://github.com/TomasFeiertag" target="_blank" rel="noopener" class="btn btn-secondary">GitHub</a>
         </div>
       </div>
       <div class="hero-photo-wrap">
@@ -324,38 +568,38 @@
     <p class="section-label">About</p>
     <h2>What I do</h2>
     <div class="about-grid">
-      <div class="about-text">
-        <p>
-          I'm a Data Scientist specializing in <strong>NLP and applied AI at production scale</strong>.
-          At Movistar (Telefónica Hispam), I design and operate AI systems that handle over
-          <strong>+300,000 customer messages per week</strong>, combining rule-based classification
-          (Regex/JSON) with LLMs to automate intent detection in natural language.
-        </p>
-        <p>
-          My focus is on building systems that actually run in production — not just notebooks.
-          I work across the full pipeline: data ingestion with PySpark on Databricks, model design,
-          prompt engineering, and business dashboards in Power BI.
-        </p>
-        <p>
-          Currently pursuing a <strong>B.Sc. in Data Science</strong> at Universidad Siglo 21
-          and open to NLP Engineering, AI/ML Engineering, and Data Science roles globally.
-        </p>
-      </div>
       <div>
-        <div class="stack-grid">
+        <div class="about-text">
+          <p>
+            I'm a Data Scientist specializing in <strong>NLP and applied AI at production scale</strong>.
+            At Movistar (Telefónica Hispam), I design and operate AI systems that handle over
+            <strong>+300,000 customer messages per week</strong>, combining rule-based classification
+            with LLMs to automate intent detection in natural language.
+          </p>
+          <p>
+            My focus is on systems that actually run in production — not just notebooks.
+            I work across the full pipeline: data ingestion with PySpark on Databricks, model design,
+            prompt engineering, and business dashboards in Power BI.
+          </p>
+          <p>
+            Currently pursuing a <strong>B.Sc. in Data Science</strong> at Universidad Siglo 21
+            and open to NLP Engineering, AI/ML Engineering, and Data Science roles globally.
+          </p>
+        </div>
+        <div class="about-skills">
           <div>
             <p class="stack-label">Core</p>
             <div class="stack-row">
-              <span class="tag highlight">Python</span>
-              <span class="tag highlight">PySpark</span>
-              <span class="tag highlight">SQL</span>
+              <span class="tag hi">Python</span>
+              <span class="tag hi">PySpark</span>
+              <span class="tag hi">SQL</span>
             </div>
           </div>
           <div>
             <p class="stack-label">AI / NLP</p>
             <div class="stack-row">
-              <span class="tag highlight">Hugging Face</span>
-              <span class="tag highlight">LLMs</span>
+              <span class="tag hi">Hugging Face</span>
+              <span class="tag hi">LLMs</span>
               <span class="tag">LangChain</span>
               <span class="tag">Scikit-learn</span>
               <span class="tag">Prompt Engineering</span>
@@ -364,22 +608,25 @@
           <div>
             <p class="stack-label">Data &amp; Cloud</p>
             <div class="stack-row">
-              <span class="tag highlight">Azure Databricks</span>
+              <span class="tag hi">Azure Databricks</span>
               <span class="tag">BigQuery</span>
               <span class="tag">Power BI</span>
+              <span class="tag">FastAPI</span>
               <span class="tag">Streamlit</span>
             </div>
           </div>
-          <div>
-            <p class="stack-label">APIs &amp; Tools</p>
-            <div class="stack-row">
-              <span class="tag">FastAPI</span>
-              <span class="tag">Git</span>
-              <span class="tag">Docker</span>
-              <span class="tag">Pandas</span>
-              <span class="tag">NumPy</span>
-            </div>
-          </div>
+        </div>
+      </div>
+      <!-- Terminal widget -->
+      <div class="terminal" id="term">
+        <div class="term-bar">
+          <span class="tdot r"></span>
+          <span class="tdot y"></span>
+          <span class="tdot g"></span>
+          <span class="term-title">bash — ~/tomas</span>
+        </div>
+        <div class="term-body" id="term-body">
+          <span class="term-cursor-blink" id="term-cur"></span>
         </div>
       </div>
     </div>
@@ -464,14 +711,14 @@
   <div class="container fade-up">
     <p class="section-label">Projects</p>
     <h2>Things I've built</h2>
-    <div class="projects-grid">
+    <div class="projects-grid stagger">
 
       <div class="project-card featured">
         <div class="project-header">
           <span class="project-icon">🎬</span>
           <div class="project-links">
-            <a href="https://proyecto-mlops-1-geib.onrender.com/docs" target="_blank">Live API ↗</a>
-            <a href="https://github.com/TomasFeiertag/Proyecto-MLOps-1" target="_blank">GitHub ↗</a>
+            <a href="https://proyecto-mlops-1-geib.onrender.com/docs" target="_blank" rel="noopener">Live API ↗</a>
+            <a href="https://github.com/TomasFeiertag/Proyecto-MLOps-1" target="_blank" rel="noopener">GitHub ↗</a>
           </div>
         </div>
         <div class="project-title">Movie Recommendation API</div>
@@ -489,8 +736,8 @@
         <div class="project-header">
           <span class="project-icon">🗺️</span>
           <div class="project-links">
-            <a href="https://pfappapp-cspnibhve4hyda4hv7mkzs.streamlit.app/" target="_blank">Live App ↗</a>
-            <a href="https://github.com/TomasFeiertag/Google-Yelps" target="_blank">GitHub ↗</a>
+            <a href="https://pfappapp-cspnibhve4hyda4hv7mkzs.streamlit.app/" target="_blank" rel="noopener">Live App ↗</a>
+            <a href="https://github.com/TomasFeiertag/Google-Yelps" target="_blank" rel="noopener">GitHub ↗</a>
           </div>
         </div>
         <div class="project-title">Google &amp; Yelp Market Analytics</div>
@@ -508,7 +755,7 @@
         <div class="project-header">
           <span class="project-icon">🎵</span>
           <div class="project-links">
-            <a href="https://github.com/TomasFeiertag/Spotify-Visual-Analytics" target="_blank">GitHub ↗</a>
+            <a href="https://github.com/TomasFeiertag/Spotify-Visual-Analytics" target="_blank" rel="noopener">GitHub ↗</a>
           </div>
         </div>
         <div class="project-title">Spotify Visual Analytics</div>
@@ -525,7 +772,7 @@
         <div class="project-header">
           <span class="project-icon">📡</span>
           <div class="project-links">
-            <a href="https://github.com/TomasFeiertag/Proyecto-Data-Analytics" target="_blank">GitHub ↗</a>
+            <a href="https://github.com/TomasFeiertag/Proyecto-Data-Analytics" target="_blank" rel="noopener">GitHub ↗</a>
           </div>
         </div>
         <div class="project-title">Argentina Internet Analytics</div>
@@ -547,14 +794,14 @@
   <div class="container fade-up">
     <p class="section-label">Certifications</p>
     <h2>Credentials</h2>
-    <div class="certs-grid">
+    <div class="certs-grid stagger">
 
       <div class="cert-card">
         <div class="cert-icon">🧱</div>
         <div>
           <div class="cert-name">Databricks Fundamentals</div>
           <div class="cert-issuer">Databricks Academy · Apr 2025</div>
-          <a href="https://credentials.databricks.com/141088057" target="_blank" class="cert-link">View credential ↗</a>
+          <a href="https://credentials.databricks.com/141088057" target="_blank" rel="noopener" class="cert-link">View credential ↗</a>
         </div>
       </div>
 
@@ -572,7 +819,7 @@
         <div>
           <div class="cert-name">EF SET English C1 — 64/100</div>
           <div class="cert-issuer">EF Standard English Test · Sep 2024</div>
-          <a href="https://www.efset.org/cert/" target="_blank" class="cert-link">View credential ↗</a>
+          <a href="https://www.efset.org/cert/" target="_blank" rel="noopener" class="cert-link">View credential ↗</a>
         </div>
       </div>
 
@@ -618,11 +865,11 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
         tomasfeiertag@gmail.com
       </a>
-      <a href="https://linkedin.com/in/tfeiertag/" target="_blank" class="contact-link">
+      <a href="https://linkedin.com/in/tfeiertag/" target="_blank" rel="noopener" class="contact-link">
         <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
         LinkedIn
       </a>
-      <a href="https://github.com/TomasFeiertag" target="_blank" class="contact-link">
+      <a href="https://github.com/TomasFeiertag" target="_blank" rel="noopener" class="contact-link">
         <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
         GitHub
       </a>
@@ -635,12 +882,306 @@
 </footer>
 
 <script>
-  // Scroll fade-in
-  const observer = new IntersectionObserver(
-    entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }),
-    { threshold: 0.12 }
-  );
-  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+/* ═══════════════════════════════════════════════
+   1. Cursor glow
+═══════════════════════════════════════════════ */
+const glowEl = document.getElementById('cursor-glow');
+document.addEventListener('mousemove', e => {
+  glowEl.style.transform = `translate(${e.clientX - 300}px, ${e.clientY - 300}px)`;
+}, { passive: true });
+
+/* ═══════════════════════════════════════════════
+   2. Command Palette
+═══════════════════════════════════════════════ */
+const COMMANDS = [
+  { group: 'Navigate', icon: '🏠', label: 'Home',           action: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+  { group: 'Navigate', icon: '👤', label: 'About',          action: () => document.getElementById('about').scrollIntoView({ behavior: 'smooth' }) },
+  { group: 'Navigate', icon: '💼', label: 'Experience',     action: () => document.getElementById('experience').scrollIntoView({ behavior: 'smooth' }) },
+  { group: 'Navigate', icon: '🚀', label: 'Projects',       action: () => document.getElementById('projects').scrollIntoView({ behavior: 'smooth' }) },
+  { group: 'Navigate', icon: '📜', label: 'Certifications', action: () => document.getElementById('certifications').scrollIntoView({ behavior: 'smooth' }) },
+  { group: 'Navigate', icon: '📬', label: 'Contact',        action: () => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' }) },
+  { group: 'Links',    icon: '🔗', label: 'LinkedIn',       hint: '↗', action: () => window.open('https://linkedin.com/in/tfeiertag/', '_blank') },
+  { group: 'Links',    icon: '🐙', label: 'GitHub',         hint: '↗', action: () => window.open('https://github.com/TomasFeiertag', '_blank') },
+  { group: 'Links',    icon: '🎬', label: 'Movie API — Live', hint: '↗', action: () => window.open('https://proyecto-mlops-1-geib.onrender.com/docs', '_blank') },
+  { group: 'Links',    icon: '🗺️', label: 'Yelp Analytics App — Live', hint: '↗', action: () => window.open('https://pfappapp-cspnibhve4hyda4hv7mkzs.streamlit.app/', '_blank') },
+  { group: 'Actions',  icon: '📧', label: 'Copy email address', hint: 'tomasfeiertag@gmail.com', action: () => { navigator.clipboard.writeText('tomasfeiertag@gmail.com').catch(()=>{}); closePalette(); showToast('Email copied to clipboard'); } },
+];
+
+const overlay   = document.getElementById('cmd-overlay');
+const cmdInput  = document.getElementById('cmd-input');
+const cmdList   = document.getElementById('cmd-list');
+const cmdEmpty  = document.getElementById('cmd-empty');
+let cmdSel = 0;
+let filteredCmds = [];
+
+function renderCmds(query) {
+  const q = query.toLowerCase().trim();
+  filteredCmds = q ? COMMANDS.filter(c =>
+    c.label.toLowerCase().includes(q) ||
+    c.group.toLowerCase().includes(q) ||
+    (c.hint || '').toLowerCase().includes(q)
+  ) : COMMANDS;
+
+  cmdList.innerHTML = '';
+  cmdEmpty.style.display = filteredCmds.length ? 'none' : 'block';
+  cmdSel = 0;
+
+  let lastGroup = '';
+  filteredCmds.forEach((cmd, i) => {
+    if (cmd.group !== lastGroup) {
+      const g = document.createElement('div');
+      g.className = 'cmd-group';
+      g.textContent = cmd.group;
+      cmdList.appendChild(g);
+      lastGroup = cmd.group;
+    }
+    const li = document.createElement('li');
+    li.className = 'cmd-item' + (i === 0 ? ' sel' : '');
+    li.innerHTML = `<span class="ci">${cmd.icon}</span><span class="cl">${cmd.label}</span>${cmd.hint ? `<span class="ch">${cmd.hint}</span>` : ''}`;
+    li.addEventListener('click', () => { cmd.action(); closePalette(); });
+    li.addEventListener('mouseenter', () => {
+      document.querySelectorAll('.cmd-item').forEach(x => x.classList.remove('sel'));
+      li.classList.add('sel');
+      cmdSel = i;
+    });
+    cmdList.appendChild(li);
+  });
+}
+
+function openPalette() {
+  overlay.classList.add('open');
+  cmdInput.value = '';
+  renderCmds('');
+  setTimeout(() => cmdInput.focus(), 50);
+}
+function closePalette() { overlay.classList.remove('open'); }
+
+document.getElementById('cmd-trigger').addEventListener('click', openPalette);
+overlay.addEventListener('click', e => { if (e.target === overlay) closePalette(); });
+
+document.addEventListener('keydown', e => {
+  const open = overlay.classList.contains('open');
+  if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === 'K' && (e.metaKey || e.ctrlKey))) {
+    e.preventDefault(); open ? closePalette() : openPalette();
+  }
+  if (!open) return;
+  if (e.key === 'Escape') { closePalette(); return; }
+  const items = cmdList.querySelectorAll('.cmd-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (cmdSel < filteredCmds.length - 1) { items[cmdSel].classList.remove('sel'); cmdSel++; items[cmdSel].classList.add('sel'); items[cmdSel].scrollIntoView({ block: 'nearest' }); }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (cmdSel > 0) { items[cmdSel].classList.remove('sel'); cmdSel--; items[cmdSel].classList.add('sel'); items[cmdSel].scrollIntoView({ block: 'nearest' }); }
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (filteredCmds[cmdSel]) { filteredCmds[cmdSel].action(); closePalette(); }
+  }
+});
+
+cmdInput.addEventListener('input', e => renderCmds(e.target.value));
+
+/* Toast notification */
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  Object.assign(t.style, {
+    position:'fixed', bottom:'2rem', left:'50%', transform:'translateX(-50%)',
+    background:'#161b22', border:'1px solid rgba(88,166,255,0.3)',
+    color:'#e6edf3', padding:'0.6rem 1.2rem', borderRadius:'8px',
+    fontSize:'0.85rem', zIndex:'9999', opacity:'0',
+    transition:'opacity 0.2s', fontFamily:'Inter, sans-serif',
+    boxShadow:'0 8px 24px rgba(0,0,0,0.5)'
+  });
+  document.body.appendChild(t);
+  setTimeout(() => t.style.opacity = '1', 10);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 250); }, 2200);
+}
+
+/* ═══════════════════════════════════════════════
+   3. Typewriter hero subtitle
+═══════════════════════════════════════════════ */
+(function typewriter() {
+  const el = document.getElementById('hero-sub');
+  const text = 'NLP & LLMs in production at <strong>Movistar · Telefónica</strong>.\nBuilding AI systems that process <strong>+300K messages/week</strong> at real-world scale.';
+  const plain = text.replace(/<[^>]+>/g, '');
+  let i = 0;
+  const cursor = el.querySelector('.tw-cursor');
+
+  function nextChar() {
+    if (i < plain.length) {
+      // rebuild HTML so strong tags work properly
+      let displayed = plain.slice(0, i + 1);
+      // inject strong tags
+      displayed = displayed
+        .replace('Movistar · Telefónica', '<strong>Movistar · Telefónica</strong>')
+        .replace('+300K messages/week', '<strong>+300K messages/week</strong>')
+        .replace('\n', '<br/>');
+      el.innerHTML = displayed + '<span class="tw-cursor"></span>';
+      i++;
+      setTimeout(nextChar, i < 3 ? 80 : 28 + Math.random() * 18);
+    }
+    // done — cursor stays blinking
+  }
+  setTimeout(nextChar, 600);
+})();
+
+/* ═══════════════════════════════════════════════
+   4. Animated counters (hero stats)
+═══════════════════════════════════════════════ */
+function animateCounter(el, target, suffix) {
+  const duration = 1400;
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const val = Math.round(ease * target);
+    el.textContent = (target >= 100 ? val + (val < target ? '' : '') : val) + suffix;
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = target + suffix;
+  }
+  requestAnimationFrame(step);
+}
+
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const el = e.target;
+    const t = parseInt(el.dataset.target, 10);
+    const s = el.dataset.suffix || '';
+    animateCounter(el, t, s);
+    counterObs.unobserve(el);
+  });
+}, { threshold: 0.5 });
+
+['cnt-1','cnt-2','cnt-3'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el && el.dataset.target) counterObs.observe(el);
+});
+
+/* ═══════════════════════════════════════════════
+   5. Terminal auto-type widget
+═══════════════════════════════════════════════ */
+(function terminal() {
+  const body = document.getElementById('term-body');
+  if (!body) return;
+
+  const lines = [
+    { type: 'cmd',  text: 'whoami' },
+    { type: 'out',  text: '  <span class="v">Tomás Feiertag</span> — Data Scientist' },
+    { type: 'out',  text: '  <span class="o">Buenos Aires · Argentina</span>' },
+    { type: 'gap' },
+    { type: 'cmd',  text: 'cat current_role.txt' },
+    { type: 'out',  text: '  <span class="v">NLP & LLMs</span> @ Movistar · Telefónica' },
+    { type: 'out',  text: '  <span class="o">+300K msgs/week in production</span>' },
+    { type: 'gap' },
+    { type: 'cmd',  text: 'python -c "import skills"' },
+    { type: 'out',  text: '  <span class="v">Python · PySpark · SQL</span>' },
+    { type: 'out',  text: '  <span class="v">Hugging Face · LLMs · Databricks</span>' },
+    { type: 'gap' },
+    { type: 'cmd',  text: 'echo $OPEN_TO_WORK' },
+    { type: 'out',  text: '  <span class="s">true</span>  <span class="o">— remote &amp; hybrid ✓</span>' },
+  ];
+
+  let lineIdx = 0;
+  let charIdx = 0;
+
+  function addLine(html, cls) {
+    const d = document.createElement('div');
+    d.className = 'tline';
+    d.innerHTML = html;
+    const cur = document.getElementById('term-cur');
+    if (cur) body.insertBefore(d, cur);
+    else body.appendChild(d);
+  }
+
+  function typeLine(lineObj, done) {
+    if (lineObj.type === 'gap') {
+      addLine('&nbsp;', '');
+      return done();
+    }
+    if (lineObj.type === 'out') {
+      addLine(lineObj.text, '');
+      return setTimeout(done, 200);
+    }
+    // cmd — type char by char
+    const prefix = '<span class="p">$</span> ';
+    let typed = '';
+    let ci = 0;
+    const txt = lineObj.text;
+    function typeNext() {
+      if (ci <= txt.length) {
+        // update or create the typing line
+        const existing = body.querySelector('.typing-active');
+        if (existing) {
+          existing.innerHTML = prefix + '<span class="c">' + typed + '</span>';
+        } else {
+          const d = document.createElement('div');
+          d.className = 'tline typing-active';
+          d.innerHTML = prefix + '<span class="c"></span>';
+          const cur = document.getElementById('term-cur');
+          if (cur) body.insertBefore(d, cur); else body.appendChild(d);
+        }
+        if (ci < txt.length) { typed += txt[ci]; ci++; setTimeout(typeNext, 55 + Math.random() * 35); }
+        else {
+          const el = body.querySelector('.typing-active');
+          if (el) el.classList.remove('typing-active');
+          setTimeout(done, 180);
+        }
+      }
+    }
+    typeNext();
+  }
+
+  function runNext() {
+    if (lineIdx >= lines.length) return; // done — cursor stays
+    typeLine(lines[lineIdx], () => { lineIdx++; setTimeout(runNext, 80); });
+  }
+
+  // Start after a delay (waits for IntersectionObserver)
+  const termObs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { setTimeout(runNext, 400); termObs.disconnect(); }
+  }, { threshold: 0.3 });
+  termObs.observe(body);
+})();
+
+/* ═══════════════════════════════════════════════
+   6. Scroll fade-up + stagger
+═══════════════════════════════════════════════ */
+const fadeObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      fadeObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-up, .stagger').forEach(el => fadeObs.observe(el));
+
+/* ═══════════════════════════════════════════════
+   7. Active nav section tracking
+═══════════════════════════════════════════════ */
+const sections = ['about','experience','projects','certifications','contact'];
+const navLinks = {};
+sections.forEach(id => {
+  const a = document.querySelector(`.nav-links a[href="#${id}"]`);
+  if (a) navLinks[id] = a;
+});
+
+const sectionObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      Object.values(navLinks).forEach(a => a.classList.remove('active'));
+      if (navLinks[e.target.id]) navLinks[e.target.id].classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+
+sections.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) sectionObs.observe(el);
+});
 </script>
 
 </body>
